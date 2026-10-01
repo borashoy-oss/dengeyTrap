@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<title>Деңгейлік тапсырмалар: Саралау</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 50%, #c4b5fd 100%);
+    color: #1e293b;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    color: #fff;
+    padding: 24px 30px;
+  }
+  header h1 { font-size: 1.6rem; margin-bottom: 6px; }
+  header p { opacity: 0.95; font-size: 0.95rem; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-top: 8px;
+    margin-right: 6px;
+  }
+
+  .section {
+    padding: 24px 30px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .section h2 {
+    color: #7c3aed;
+    font-size: 1.25rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section h2::before {
+    content: '';
+    width: 6px;
+    height: 24px;
+    background: #7c3aed;
+    border-radius: 3px;
+  }
+
+  .levels-intro {
+    background: #f5f3ff;
+    border-left: 4px solid #7c3aed;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .levels-intro b { color: #5b21b6; }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .level-card {
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+    color: #fff;
+    font-weight: 600;
+  }
+  .level-card .lvl-name { font-size: 1rem; margin-bottom: 4px; }
+  .level-card .lvl-pts { font-size: 0.85rem; opacity: 0.9; }
+  .lvl-support { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+  .lvl-middle { background: linear-gradient(135deg, #10b981, #34d399); }
+  .lvl-high { background: linear-gradient(135deg, #dc2626, #f97316); }
+
+  /* Деңгейлердің түстері */
+  .task-support { border-left: 5px solid #3b82f6; }
+  .task-support h3 { color: #1d4ed8; }
+  .task-middle { border-left: 5px solid #10b981; }
+  .task-middle h3 { color: #047857; }
+  .task-high { border-left: 5px solid #dc2626; }
+  .task-high h3 { color: #b91c1c; }
+
+  .task-block {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .task-block h3 {
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .level-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #fff;
+    font-weight: 600;
+  }
+  .tag-support { background: #3b82f6; }
+  .tag-middle { background: #10b981; }
+  .tag-high { background: #dc2626; }
+
+  .task-text {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+    font-family: 'Cambria Math', serif;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+  .task-text.support { background: #dbeafe; color: #1e40af; }
+  .task-text.middle { background: #d1fae5; color: #065f46; }
+  .task-text.high { background: #fee2e2; color: #991b1b; }
+
+  .step {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 10px 0;
+    transition: border-color 0.2s;
+  }
+  .step:hover { border-color: #7c3aed; }
+  .step-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  .step-label .num {
+    display: inline-block;
+    background: #7c3aed;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    margin-right: 8px;
+    font-size: 0.85rem;
+  }
+  .step-label .pts {
+    float: right;
+    background: #fef3c7;
+    color: #92400e;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .input-row label {
+    font-weight: 500;
+    min-width: 60px;
+  }
+  input[type="text"], input[type="number"], select {
+    padding: 8px 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Cambria Math', serif;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #7c3aed;
+  }
+  .step-input {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .step-feedback {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .step-feedback.ok {
+    background: #dcfce7;
+    color: #166534;
+    display: block;
+  }
+  .step-feedback.err {
+    background: #fee2e2;
+    color: #991b1b;
+    display: block;
+  }
+
+  .check-btn {
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 8px;
+    transition: transform 0.15s;
+  }
+  .check-btn:hover { transform: translateY(-2px); }
+
+  .hint-box {
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 0.92rem;
+    display: none;
+  }
+  .hint-box.show { display: block; }
+  .hint-box.blue { background: #dbeafe; border-left: 4px solid #3b82f6; color: #1e40af; }
+  .hint-box.green { background: #d1fae5; border-left: 4px solid #10b981; color: #065f46; }
+  .hint-box.red { background: #fee2e2; border-left: 4px solid #dc2626; color: #991b1b; }
+  .hint-btn {
+    background: #f59e0b;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-left: 6px;
+    margin-top: 8px;
+  }
+
+  .graphs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .graph-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .graph-card h4 {
+    color: #7c3aed;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+  svg { max-width: 100%; height: auto; }
+
+  .score-panel {
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    border: 2px solid #7c3aed;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .score-panel h3 {
+    color: #5b21b6;
+    margin-bottom: 8px;
+  }
+  .score-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #7c3aed;
+  }
+  .score-max { color: #64748b; font-size: 1rem; }
+
+  .descriptors {
+    background: #f1f5f9;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-top: 14px;
+  }
+  .descriptors h3 {
+    color: #475569;
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+  .descriptors ul {
+    padding-left: 20px;
+    line-height: 1.8;
+  }
+  .descriptors li::marker { color: #7c3aed; }
+
+  .final-result {
+    background: #fff;
+    border: 2px dashed #7c3aed;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-family: 'Cambria Math', serif;
+    font-size: 1rem;
+    margin-top: 10px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 900px) {
+    .graphs, .level-grid { grid-template-columns: 1fr; }
+    .section { padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>🎯 4-тапсырма: Деңгейлік саралау</h1>
+    <p>Қолдау · Орта · Жоғары — өз деңгейіңізді таңдаңыз</p>
+    <span class="badge">📝 Жеке орындау</span>
+    <span class="badge">👨‍🏫 Мұғалімнің кері байланысы</span>
+  </header>
+
+  <!-- Деңгейлер -->
+  <div class="section">
+    <h2>📊 Деңгейлер</h2>
+    <div class="levels-intro">
+      <b>Нұсқау:</b> Өз деңгейіңізді таңдап, тапсырманы орындаңыз. Әр деңгей 5 дескриптор бойынша бағаланады.
+    </div>
+    <div class="level-grid">
+      <div class="level-card lvl-support">
+        <div class="lvl-name">📘 Қолдау деңгейі</div>
+        <div class="lvl-pts">Алгоритм бойынша · 5 балл</div>
+      </div>
+      <div class="level-card lvl-middle">
+        <div class="lvl-name">📗 Орта деңгей</div>
+        <div class="lvl-pts">Дерексіз есеп · 5 балл</div>
+      </div>
+      <div class="level-card lvl-high">
+        <div class="lvl-name">📕 Жоғары деңгей</div>
+        <div class="lvl-pts">Қиылысу нүктелері · 5 балл</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Графиктер -->
+  <div class="section">
+    <h2>📈 Графиктер</h2>
+    <div class="graphs">
+      <div class="graph-card">
+        <h4>Қолдау: y = x²</h4>
+        <svg viewBox="0 0 200 180" width="200" height="180">
+          <line x1="20" y1="160" x2="190" y2="160" stroke="#333" stroke-width="1.5"/>
+          <line x1="20" y1="160" x2="20" y2="10" stroke="#333" stroke-width="1.5"/>
+          <polygon points="190,160 182,156 182,164" fill="#333"/>
+          <polygon points="20,10 16,18 24,18" fill="#333"/>
+          <text x="192" y="165" font-size="10" font-weight="bold">x</text>
+          <text x="12" y="10" font-size="10" font-weight="bold">y</text>
+          <text x="17" y="172" font-size="10">0</text>
+          <line x1="150" y1="160" x2="150" y2="165" stroke="#333"/>
+          <text x="147" y="175" font-size="10">1</text>
+          <text x="8" y="30" font-size="10">1</text>
+          <line x1="15" y1="28" x2="20" y2="28" stroke="#333"/>
+          <path d="M 20 28 Q 80 150, 150 160" stroke="#3b82f6" stroke-width="2.5" fill="none"/>
+          <text x="155" y="165" font-size="10" fill="#3b82f6" font-weight="bold">y=x²</text>
+          <path d="M 20 28 Q 80 150, 150 160 L 150 160 L 20 160 Z" fill="#93c5fd" fill-opacity="0.4" stroke="#3b82f6" stroke-dasharray="3,2"/>
+          <text x="60" y="130" font-size="16" fill="#1d4ed8" font-style="italic" font-weight="bold">S</text>
+        </svg>
+      </div>
+      <div class="graph-card">
+        <h4>Орта: y = 4−x²</h4>
+        <svg viewBox="0 0 200 180" width="200" height="180">
+          <line x1="20" y1="160" x2="190" y2="160" stroke="#333" stroke-width="1.5"/>
+          <line x1="20" y1="160" x2="20" y2="10" stroke="#333" stroke-width="1.5"/>
+          <polygon points="190,160 182,156 182,164" fill="#333"/>
+          <polygon points="20,10 16,18 24,18" fill="#333"/>
+          <text x="192" y="165" font-size="10" font-weight="bold">x</text>
+          <text x="12" y="10" font-size="10" font-weight="bold">y</text>
+          <text x="17" y="172" font-size="10">0</text>
+          <line x1="150" y1="160" x2="150" y2="165" stroke="#333"/>
+          <text x="147" y="175" font-size="10">2</text>
+          <text x="8" y="30" font-size="10">4</text>
+          <line x1="15" y1="28" x2="20" y2="28" stroke="#333"/>
+          <path d="M 20 28 Q 100 10, 150 96" stroke="#10b981" stroke-width="2.5" fill="none"/>
+          <text x="155" y="100" font-size="10" fill="#10b981" font-weight="bold">y=4−x²</text>
+          <path d="M 20 28 Q 100 10, 150 96 L 150 160 L 20 160 Z" fill="#6ee7b7" fill-opacity="0.4" stroke="#10b981" stroke-dasharray="3,2"/>
+          <text x="70" y="130" font-size="16" fill="#047857" font-style="italic" font-weight="bold">S</text>
+        </svg>
+      </div>
+      <div class="graph-card">
+        <h4>Жоғары: y=x, y=2−x²</h4>
+        <svg viewBox="0 0 200 180" width="200" height="180">
+          <line x1="20" y1="110" x2="190" y2="110" stroke="#333" stroke-width="1.5"/>
+          <line x1="70" y1="170" x2="70" y2="10" stroke="#333" stroke-width="1.5"/>
+          <polygon points="190,110 182,106 182,114" fill="#333"/>
+          <polygon points="70,10 66,18 74,18" fill="#333"/>
+          <text x="192" y="115" font-size="10" font-weight="bold">x</text>
+          <text x="62" y="10" font-size="10" font-weight="bold">y</text>
+          <text x="62" y="122" font-size="10">0</text>
+          <!-- y=x сызығы -->
+          <line x1="20" y1="160" x2="170" y2="10" stroke="#dc2626" stroke-width="2"/>
+          <text x="172" y="15" font-size="10" fill="#dc2626" font-weight="bold">y=x</text>
+          <!-- y=2-x² параболасы -->
+          <path d="M 20 150 Q 70 10, 120 110" stroke="#f97316" stroke-width="2" fill="none"/>
+          <text x="122" y="115" font-size="10" fill="#f97316" font-weight="bold">y=2−x²</text>
+          <!-- Фигура -->
+          <path d="M 20 160 L 170 10 Q 70 10, 20 150 Z" fill="#fca5a5" fill-opacity="0.4" stroke="#dc2626" stroke-dasharray="3,2"/>
+          <text x="60" y="90" font-size="16" fill="#991b1b" font-style="italic" font-weight="bold">S</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ҚОЛДАУ ДЕҢГЕЙІ -->
+  <div class="section">
+    <h2>📘 Қолдау деңгейі: y = x², 0 ≤ x ≤ 1</h2>
+    <div class="task-block task-support">
+      <h3><span class="level-tag tag-support">Қолдау</span> Алгоритм бойынша есептеңіз</h3>
+      <div class="task-text support">
+        y = x², x = 0, x = 1 түзулерімен шектелген фигураның ауданын табыңыз.
+      </div>
+
+      <div class="hint-box blue show">
+        💡 <b>Алгоритм:</b> 1) Шектерді жаз → 2) Интеграл құр → 3) Алғашқы функцияны тап → 4) Ньютон–Лейбниц формуласымен есепте.
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">1</span>Шектерді анықтаңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>a =</label><input type="number" id="s_a" class="step-input" placeholder="0">
+          <label>b =</label><input type="number" id="s_b" class="step-input" placeholder="1">
+        </div>
+        <button class="check-btn" onclick="checkS1()">Тексеру</button>
+        <div id="fb_s_1" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">2</span>Интеграл астындағы функция <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>f(x) =</label><input type="text" id="s_f" class="step-input" placeholder="мысалы: x^2">
+        </div>
+        <button class="check-btn" onclick="checkSF()">Тексеру</button>
+        <div id="fb_s_f" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">3</span>Алғашқы функция <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>F(x) =</label><input type="text" id="s_F" class="step-input" placeholder="мысалы: x^3/3">
+        </div>
+        <button class="check-btn" onclick="checkSFx()">Тексеру</button>
+        <div id="fb_s_F" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">4</span>Ньютон–Лейбниц формуласымен есептеңіз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label><b>S =</b></label><input type="text" id="s_S" class="step-input" placeholder="мысалы: 1/3">
+        </div>
+        <button class="check-btn" onclick="checkSS()">Тексеру</button>
+        <div id="fb_s_S" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">5</span>Жауапты негіздеңіз (неге осындай интеграл?) <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <select id="s_why" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="a">y = x² функциясы [0;1] аралығында f(x) ≥ 0, сондықтан S = ∫₀¹ x² dx</option>
+            <option value="b">y = x² функциясы теріс мән қабылдайды</option>
+            <option value="c">Интеграл шектері дұрыс емес</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkSWhy()">Тексеру</button>
+        <div id="fb_s_why" class="step-feedback"></div>
+      </div>
+
+      <div class="final-result">
+        ✅ Дұрыс жауап: <b>S = ∫<sub>0</sub><sup>1</sup> x² dx = [x³/3]<sub>0</sub><sup>1</sup> = 1/3 − 0 = 1/3</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОРТА ДЕҢГЕЙ -->
+  <div class="section">
+    <h2>📗 Орта деңгей: y = 4−x², y = 0, x = 0, x = 2</h2>
+    <div class="task-block task-middle">
+      <h3><span class="level-tag tag-middle">Орта</span> Фигураның ауданын табыңыз</h3>
+      <div class="task-text middle">
+        y = 4 − x², y = 0, x = 0, x = 2 шектерімен берілген фигураның ауданын табыңыз.
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">1</span>Шектерді анықтаңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>a =</label><input type="number" id="m_a" class="step-input" placeholder="0">
+          <label>b =</label><input type="number" id="m_b" class="step-input" placeholder="2">
+        </div>
+        <button class="check-btn" onclick="checkM1()">Тексеру</button>
+        <div id="fb_m_1" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">2</span>Жоғарғы функцияны анықтаңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <select id="m_top" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="4x2">y = 4 − x² (жоғарғы), y = 0 (төменгі)</option>
+            <option value="x24">y = 0 (жоғарғы), y = 4 − x² (төменгі)</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkM2()">Тексеру</button>
+        <div id="fb_m_2" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">3</span>Интегралды құрыңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>Интеграл астындағы:</label>
+          <select id="m_int" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="4x2">4 − x²</option>
+            <option value="x24">x² − 4</option>
+            <option value="4x2+0">4 − x² + 0</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkM3()">Тексеру</button>
+        <div id="fb_m_3" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">4</span>Есептеңіз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>F(x) =</label><input type="text" id="m_F" class="step-input" placeholder="мысалы: 4x-x^3/3">
+        </div>
+        <div class="input-row" style="margin-top:8px;">
+          <label><b>S =</b></label><input type="text" id="m_S" class="step-input" placeholder="мысалы: 16/3">
+        </div>
+        <button class="check-btn" onclick="checkM4()">Тексеру</button>
+        <div id="fb_m_4" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">5</span>Жауапты негіздеңіз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <select id="m_why" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="a">[0;2] аралығында 4−x² ≥ 0, сондықтан S = ∫₀² (4−x²)dx</option>
+            <option value="b">Функция [0;2] аралығында теріс</option>
+            <option value="c">Екі функцияны қосу керек</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkMWhy()">Тексеру</button>
+        <div id="fb_m_why" class="step-feedback"></div>
+      </div>
+
+      <div class="final-result">
+        ✅ Дұрыс жауап: <b>S = ∫<sub>0</sub><sup>2</sup> (4−x²) dx = [4x − x³/3]<sub>0</sub><sup>2</sup> = (8 − 8/3) − 0 = 16/3</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЖОҒАРЫ ДЕҢГЕЙ -->
+  <div class="section">
+    <h2>📕 Жоғары деңгей: y = x және y = 2−x²</h2>
+    <div class="task-block task-high">
+      <h3><span class="level-tag tag-high">Жоғары</span> Қиылысу нүктелерін табыңыз</h3>
+      <div class="task-text high">
+        y = x және y = 2 − x² графиктерімен шектелген фигураның ауданын табыңыз.
+      </div>
+
+      <div class="hint-box red" id="hintH">
+        💡 <b>Нұсқау:</b> Алдымен қиылысу нүктелерін анықтаңыз: x = 2 − x² → x² + x − 2 = 0 → (x+2)(x−1) = 0 → x = −2 немесе x = 1.
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">1</span>Қиылысу нүктелерін табыңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>x₁ =</label><input type="number" id="h_x1" class="step-input" placeholder="мысалы: -2">
+          <label>x₂ =</label><input type="number" id="h_x2" class="step-input" placeholder="мысалы: 1">
+        </div>
+        <button class="check-btn" onclick="checkH1()">Тексеру</button>
+        <button class="hint-btn" onclick="toggleHintH()">💡 Кеңес</button>
+        <div id="fb_h_1" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">2</span>Шектерді анықтаңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>a =</label><input type="number" id="h_a" class="step-input" placeholder="-2">
+          <label>b =</label><input type="number" id="h_b" class="step-input" placeholder="1">
+        </div>
+        <button class="check-btn" onclick="checkH2()">Тексеру</button>
+        <div id="fb_h_2" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">3</span>Жоғарғы функцияны анықтаңыз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <select id="h_top" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="2x2">y = 2 − x² (жоғарғы), y = x (төменгі)</option>
+            <option value="x2">y = x (жоғарғы), y = 2 − x² (төменгі)</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkH3()">Тексеру</button>
+        <div id="fb_h_3" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">4</span>Интегралды құрыңыз және есептеңіз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <label>Интеграл астындағы:</label>
+          <select id="h_int" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="2x2x">(2 − x²) − x = 2 − x² − x</option>
+            <option value="x2x2">x − (2 − x²) = x² + x − 2</option>
+            <option value="sum">(2 − x²) + x</option>
+          </select>
+        </div>
+        <div class="input-row" style="margin-top:8px;">
+          <label><b>S =</b></label><input type="text" id="h_S" class="step-input" placeholder="мысалы: 9/2">
+        </div>
+        <button class="check-btn" onclick="checkH4()">Тексеру</button>
+        <div id="fb_h_4" class="step-feedback"></div>
+      </div>
+
+      <div class="step">
+        <span class="step-label"><span class="num">5</span>Жауапты негіздеңіз <span class="pts">1 балл</span></span>
+        <div class="input-row">
+          <select id="h_why" class="step-input">
+            <option value="">-- таңдаңыз --</option>
+            <option value="a">[−2;1] аралығында 2−x² ≥ x, сондықтан S = ∫₋₂¹ (2−x²−x)dx</option>
+            <option value="b">Екі функцияны қосу керек</option>
+            <option value="c">Қиылысу нүктелерін есепке алмаймыз</option>
+          </select>
+        </div>
+        <button class="check-btn" onclick="checkHWhy()">Тексеру</button>
+        <div id="fb_h_why" class="step-feedback"></div>
+      </div>
+
+      <div class="final-result">
+        ✅ Дұрыс жауап: x² + x − 2 = 0 → x = −2, x = 1<br>
+        [−2;1] аралығында 2−x² ≥ x, сондықтан<br>
+        <b>S = ∫<sub>−2</sub><sup>1</sup> (2 − x² − x) dx = [2x − x³/3 − x²/2]<sub>−2</sub><sup>1</sup> = 9/2</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ұпай -->
+  <div class="section">
+    <h2>🏆 Жалпы ұпай</h2>
+    <div class="score-panel">
+      <h3>Сіздің нәтижеңіз:</h3>
+      <div class="score-value"><span id="score">0</span> <span class="score-max">/ 15 балл</span></div>
+      <p id="score-msg" style="margin-top:10px; color:#5b21b6;"></p>
+      <div id="grade" style="margin-top:10px; font-size:1.1rem; font-weight:600; color:#7c3aed;"></div>
+      <button class="check-btn" style="background: linear-gradient(135deg, #dc2626, #ea580c); margin-top:10px;" onclick="resetAll()">🔄 Қайта бастау</button>
+    </div>
+
+    <div class="descriptors">
+      <h3>📋 Дескрипторлар (әр дұрыс қадам — 1 балл):</h3>
+      <ul>
+        <li>Шектерді (интегралдау аралығын) дұрыс анықтайды;</li>
+        <li>Жоғарғы және төменгі функцияны ажыратады;</li>
+        <li>Аудан интегралын дұрыс құрады;</li>
+        <li>Есептеуді дұрыс орындайды;</li>
+        <li>Жауабын негіздейді (неге осы формула қолданылғанын түсіндіреді).</li>
+      </ul>
+      <p style="margin-top:10px; font-size:0.9rem; color:#64748b;">
+        <b>Бағалау шкаласы:</b><br>
+        13–15 балл — «5» (өте жақсы) · 10–12 балл — «4» (жақсы) · 7–9 балл — «3» (қанағаттанарлық) · 0–6 балл — қайталау қажет
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let score = 0;
+const done = {};
+
+function normalize(s) {
+  return s.toString().trim().toLowerCase().replace(/\s+/g,'').replace('²','^2').replace('³','^3');
+}
+
+function showFb(id, ok, msg) {
+  const el = document.getElementById('fb_' + id);
+  el.className = 'step-feedback ' + (ok ? 'ok' : 'err');
+  el.innerHTML = (ok ? '✅ ' : '❌ ') + msg;
+}
+
+function addScore(key, pts) {
+  if (done[key]) return;
+  done[key] = true;
+  score += pts;
+  document.getElementById('score').textContent = score;
+  updateMsg();
+}
+
+function updateMsg() {
+  const msg = document.getElementById('score-msg');
+  const grade = document.getElementById('grade');
+  if (score === 0) {
+    msg.textContent = 'Тапсырманы орындауды бастаңыз!';
+    grade.textContent = '';
+  } else if (score < 7) {
+    msg.textContent = 'Тағы жұмыс істеңіз 💪';
+    grade.textContent = '';
+  } else if (score <= 9) {
+    msg.textContent = 'Жаман емес!';
+    grade.textContent = 'Бағасы: «3»';
+  } else if (score <= 12) {
+    msg.textContent = 'Жақсы нәтиже! 🎯';
+    grade.textContent = 'Бағасы: «4»';
+  } else {
+    msg.textContent = '🎉 Тамаша! Барлық тапсырманы дұрыс орындадыңыз!';
+    grade.textContent = 'Бағасы: «5»';
+  }
+}
+
+function parseNum(s) {
+  s = s.trim().replace(',', '.');
+  if (s.includes('/')) {
+    const parts = s.split('/');
+    if (parts.length === 2) {
+      const n = parseFloat(parts[0]);
+      const d = parseFloat(parts[1]);
+      if (!isNaN(n) && !isNaN(d) && d !== 0) return n/d;
+    }
+    return NaN;
+  }
+  return parseFloat(s);
+}
+
+// ҚОЛДАУ ДЕҢГЕЙІ
+function checkS1() {
+  const a = parseFloat(document.getElementById('s_a').value);
+  const b = parseFloat(document.getElementById('s_b').value);
+  if (a === 0 && b === 1) {
+    showFb('s_1', true, 'Дұрыс! a = 0, b = 1');
+    addScore('sup_1', 1);
+  } else {
+    showFb('s_1', false, 'Қате. x = 0 және x = 1 аралығында екенін ескеріңіз.');
+  }
+}
+
+function checkSF() {
+  const v = normalize(document.getElementById('s_f').value);
+  const variants = ['x^2','x²','x*x'];
+  if (variants.some(x => normalize(x) === v)) {
+    showFb('s_f', true, 'Дұрыс! f(x) = x²');
+    addScore('sup_f', 1);
+  } else {
+    showFb('s_f', false, 'Қате. Функцияны қайта тексеріңіз.');
+  }
+}
+
+function checkSFx() {
+  const v = normalize(document.getElementById('s_F').value);
+  const variants = ['x^3/3','x³/3','(x^3)/3','x^(3)/3','1/3*x^3','1/3*x³'];
+  if (variants.some(x => normalize(x) === v)) {
+    showFb('s_F', true, 'Дұрыс! F(x) = x³/3');
+    addScore('sup_F', 1);
+  } else {
+    showFb('s_F', false, 'Қате. ∫x²dx = x³/3 + C екенін ескеріңіз.');
+  }
+}
+
+function checkSS() {
+  const S = parseNum(document.getElementById('s_S').value);
+  if (!isNaN(S) && Math.abs(S - 1/3) < 0.01) {
+    showFb('s_S', true, 'Дұрыс! S = 1/3');
+    addScore('sup_S', 1);
+  } else {
+    showFb('s_S', false, 'Қате. S = F(1) − F(0) = 1/3 − 0 = 1/3.');
+  }
+}
+
+function checkSWhy() {
+  const v = document.getElementById('s_why').value;
+  if (v === 'a') {
+    showFb('s_why', true, 'Дұрыс! [0;1] аралығында x² ≥ 0, сондықтан формула дұрыс қолданылды.');
+    addScore('sup_why', 1);
+  } else if (v === '') {
+    showFb('s_why', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('s_why', false, 'Қате. [0;1] аралығында x² ≥ 0 екенін есте сақтаңыз.');
+  }
+}
+
+// ОРТА ДЕҢГЕЙ
+function checkM1() {
+  const a = parseFloat(document.getElementById('m_a').value);
+  const b = parseFloat(document.getElementById('m_b').value);
+  if (a === 0 && b === 2) {
+    showFb('m_1', true, 'Дұрыс! a = 0, b = 2');
+    addScore('mid_1', 1);
+  } else {
+    showFb('m_1', false, 'Қате. x = 0 және x = 2 аралығында екенін ескеріңіз.');
+  }
+}
+
+function checkM2() {
+  const v = document.getElementById('m_top').value;
+  if (v === '4x2') {
+    showFb('m_2', true, 'Дұрыс! [0;2] аралығында 4−x² ≥ 0, сондықтан ол жоғарғы функция.');
+    addScore('mid_2', 1);
+  } else if (v === '') {
+    showFb('m_2', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('m_2', false, 'Қате. x = 0 нүктесінде 4−0² = 4 > 0 екенін тексеріңіз.');
+  }
+}
+
+function checkM3() {
+  const v = document.getElementById('m_int').value;
+  if (v === '4x2') {
+    showFb('m_3', true, 'Дұрыс! Жоғарғы − төменгі = (4−x²) − 0 = 4−x²');
+    addScore('mid_3', 1);
+  } else if (v === '') {
+    showFb('m_3', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('m_3', false, 'Қате. S = ∫(жоғарғы − төменгі)dx формуласын қолданыңыз.');
+  }
+}
+
+function checkM4() {
+  const Fv = normalize(document.getElementById('m_F').value);
+  const Sv = document.getElementById('m_S').value;
+  const Fvariants = ['4x-x^3/3','4x-x³/3','4*x-x^3/3','4x-(x^3)/3','-x^3/3+4x'];
+  const Fok = Fvariants.some(x => normalize(x) === Fv);
+  const S = parseNum(Sv);
+  const SOk = !isNaN(S) && Math.abs(S - 16/3) < 0.01;
+  if (Fok && SOk) {
+    showFb('m_4', true, 'Дұрыс! S = 16/3 ≈ 5,33');
+    addScore('mid_4', 1);
+  } else {
+    let msg = 'Қате. ';
+    if (!Fok) msg += 'F(x) = 4x − x³/3. ';
+    if (!SOk) msg += 'S = (8 − 8/3) = 16/3. ';
+    showFb('m_4', false, msg);
+  }
+}
+
+function checkMWhy() {
+  const v = document.getElementById('m_why').value;
+  if (v === 'a') {
+    showFb('m_why', true, 'Дұрыс! [0;2] аралығында 4−x² ≥ 0, формула дұрыс қолданылды.');
+    addScore('mid_why', 1);
+  } else if (v === '') {
+    showFb('m_why', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('m_why', false, 'Қате. x = 0 нүктесінде 4−0² = 4 > 0 екенін есте сақтаңыз.');
+  }
+}
+
+// ЖОҒАРЫ ДЕҢГЕЙ
+function toggleHintH() {
+  document.getElementById('hintH').classList.toggle('show');
+}
+
+function checkH1() {
+  const x1 = parseFloat(document.getElementById('h_x1').value);
+  const x2 = parseFloat(document.getElementById('h_x2').value);
+  const ok = (x1 === -2 && x2 === 1) || (x1 === 1 && x2 === -2);
+  if (ok) {
+    showFb('h_1', true, 'Дұрыс! x = −2 және x = 1. Теңдеу: x² + x − 2 = 0');
+    addScore('high_1', 1);
+  } else {
+    showFb('h_1', false, 'Қате. x = 2 − x² → x² + x − 2 = 0 теңдеуін шешіңіз.');
+  }
+}
+
+function checkH2() {
+  const a = parseFloat(document.getElementById('h_a').value);
+  const b = parseFloat(document.getElementById('h_b').value);
+  if (a === -2 && b === 1) {
+    showFb('h_2', true, 'Дұрыс! a = −2, b = 1');
+    addScore('high_2', 1);
+  } else {
+    showFb('h_2', false, 'Қате. Қиылысу нүктелері: x = −2 және x = 1.');
+  }
+}
+
+function checkH3() {
+  const v = document.getElementById('h_top').value;
+  if (v === '2x2') {
+    showFb('h_3', true, 'Дұрыс! [−2;1] аралығында 2−x² ≥ x (мысалы, x=0 → 2 > 0).');
+    addScore('high_3', 1);
+  } else if (v === '') {
+    showFb('h_3', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('h_3', false, 'Қате. x = 0 нүктесінде тексеріңіз: 2−0² = 2 > 0.');
+  }
+}
+
+function checkH4() {
+  const v = document.getElementById('h_int').value;
+  const Sv = document.getElementById('h_S').value;
+  const Sok = v === '2x2x';
+  const S = parseNum(Sv);
+  const SOk = !isNaN(S) && Math.abs(S - 9/2) < 0.01;
+  if (Sok && SOk) {
+    showFb('h_4', true, 'Дұрыс! S = 9/2 = 4,5');
+    addScore('high_4', 1);
+  } else {
+    let msg = 'Қате. ';
+    if (!Sok) msg += 'Интеграл астындағы: (2−x²) − x = 2 − x² − x. ';
+    if (!SOk) msg += 'S = 9/2. ';
+    showFb('h_4', false, msg);
+  }
+}
+
+function checkHWhy() {
+  const v = document.getElementById('h_why').value;
+  if (v === 'a') {
+    showFb('h_why', true, 'Дұрыс! [−2;1] аралығында 2−x² ≥ x, формула дұрыс қолданылды.');
+    addScore('high_why', 1);
+  } else if (v === '') {
+    showFb('h_why', false, 'Жауапты таңдаңыз.');
+  } else {
+    showFb('h_why', false, 'Қате. Қиылысу нүктелерін есептеп, жоғарғы функцияны анықтау керек.');
+  }
+}
+
+function resetAll() {
+  if (!confirm('Барлық жауаптарды өшіріп, қайта бастайсыз ба?')) return;
+  document.querySelectorAll('input, select').forEach(i => i.value = '');
+  document.querySelectorAll('.step-feedback').forEach(f => {
+    f.className = 'step-feedback';
+    f.innerHTML = '';
+  });
+  document.getElementById('hintH').classList.remove('show');
+  score = 0;
+  for (let k in done) delete done[k];
+  document.getElementById('score').textContent = 0;
+  updateMsg();
+}
+
+updateMsg();
+</script>
+</body>
+</html>
